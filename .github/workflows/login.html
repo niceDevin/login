@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .login-container h2 {
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .input-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .input-group button:disabled {
+            background-color: #ccc;
+        }
+
+        .timer {
+            color: #888;
+            font-size: 12px;
+            text-align: right;
+        }
+
+        #generated-code {
+            margin-top: 10px;
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* 成功登录后的提示样式 */
+        #login-success {
+            display: none;
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #awesome-message {
+            display: none;
+            font-size: 18px;
+            color: #ff5722;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* 欢迎信息样式 */
+        #welcome-message {
+            display: none;
+            font-size: 20px;
+            color: #333;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>登录</h2>
+        <div class="input-group">
+            <label for="phone">手机号</label>
+            <input type="text" id="phone" placeholder="请输入手机号" oninput="checkInput()"/>
+        </div>
+        <div class="input-group">
+            <label for="verification-code">验证码</label>
+            <div style="display: flex; align-items: center;">
+                <input type="text" id="verification-code" placeholder="请输入验证码" oninput="checkInput()"/>
+                <button id="send-code" onclick="sendVerificationCode()">发送验证码</button>
+            </div>
+            <div class="timer" id="timer"></div>
+        </div>
+        <div id="generated-code"></div> <!-- 显示生成的验证码 -->
+        <div class="input-group">
+            <button id="login-btn" onclick="login()" disabled>登录</button>
+        </div>
+
+        <!-- 登录成功提示 -->
+        <div id="login-success">登录成功！</div>
+
+        <!-- 展示厉害消息 -->
+        <div id="awesome-message">厉害！你成功登录了！</div>
+
+        <!-- 显示欢迎信息 -->
+        <div id="welcome-message">你好，欢迎回来！</div>
+    </div>
+
+    <script>
+        let timerInterval;
+        let timeLeft = 60;
+        let verificationCode; // 保存生成的验证码
+
+        function sendVerificationCode() {
+            const phone = document.getElementById('phone').value;
+            if (!phone) {
+                alert('请输入手机号');
+                return;
+            }
+
+            // 生成一个6位数字验证码
+            verificationCode = Math.floor(100000 + Math.random() * 900000);
+
+            // 显示生成的验证码在页面上
+            document.getElementById('generated-code').innerText = `生成的验证码是：${verificationCode}`;
+
+            // 模拟发送验证码
+            alert('验证码已发送！\n验证码是：' + verificationCode);  // 这里只是演示，实际情况下不会直接显示验证码给用户
+
+            document.getElementById('send-code').disabled = true;
+            startTimer();
+            checkInput(); // 调用检查输入的函数，更新登录按钮状态
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(function() {
+                if (timeLeft > 0) {
+                    document.getElementById('timer').innerText = `${timeLeft}秒后重新发送`;
+                    timeLeft--;
+                } else {
+                    clearInterval(timerInterval);
+                    document.getElementById('send-code').disabled = false;
+                    document.getElementById('timer').innerText = '';
+                    timeLeft = 60; // 重置计时器
+                }
+            }, 1000);
+        }
+
+        function checkInput() {
+            const phone = document.getElementById('phone').value;
+            const code = document.getElementById('verification-code').value;
+            const loginButton = document.getElementById('login-btn');
+
+            // 如果手机号和验证码都不为空，则启用登录按钮
+            if (phone && code) {
+                loginButton.disabled = false;
+            } else {
+                loginButton.disabled = true;
+            }
+        }
+
+        function login() {
+            const phone = document.getElementById('phone').value;
+            const code = document.getElementById('verification-code').value;
+
+            if (!phone || !code) {
+                alert('请输入手机号和验证码');
+                return;
+            }
+
+            // 检查验证码是否正确
+            if (code !== verificationCode.toString()) {
+                alert('验证码错误，请重新输入');
+                return;
+            }
+
+            // 显示登录成功信息
+            document.getElementById('login-success').style.display = 'block';
+            document.getElementById('awesome-message').style.display = 'block';
+
+            // 显示欢迎信息
+            document.getElementById('welcome-message').style.display = 'block';
+
+            // 隐藏登录表单内容，但保留成功提示和欢迎信息
+            document.querySelector('.login-container').querySelectorAll('.input-group').forEach(function(group) {
+                group.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
